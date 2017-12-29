@@ -1,0 +1,187 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="FEWeb.Login" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <title>登录</title>
+    <link href="css/reset.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="Scripts/jquery-1.8.3.min.js"></script>
+    <script src="Scripts/Validform_v5.3.1.js"></script>
+    <script src="Scripts/layer/layer.js"></script>
+    <script src="Scripts/md5.js"></script>
+    <script src="Scripts/jquery.cookie.js"></script>
+    <script src="Scripts/Common.js"></script>
+    <script>
+        $(function () {
+            //$('#header').load('../header.html');
+            $('#footer').load('footer.html');
+        })
+    </script>
+    <style type="text/css">
+        .Validform_checktip {
+            display: block;
+            line-height: 25px;
+            font-size: 15px;
+            color: #fff;
+            text-indent: 45px;
+        }
+
+        .Validform_wrong {
+            color: red;
+        }
+
+        .Validform_right {
+            color: #91c954;
+        }
+    </style>
+</head>
+<body>
+    <input type="hidden" id="hidPreUrl" runat="server" />
+    <header id="login_header">
+        <div class="width">
+            <div class="logo" style="margin:12px 0px;">
+                <img src="/images/login_logo.png" alt="Alternate Text" />
+            </div>
+        </div>
+    </header>
+    <div id="wrap">
+        <div class="width pr login">
+            <div class="login_con">
+                <h1>登录</h1>
+                <div class="form">
+                    <form id="loginform" name="loginform" runat="server">
+                        <ul id="sortable1" class=" con">
+                            <li class=" xian">
+                                <span class="icon">
+                                    <img src="/images/people.png" />
+                                </span>
+                                <input id="txt_loginName" type="text" class="kuang" placeholder="请输入用户名" datatype="*" nullmsg="请输入登录名！" />
+                            </li>
+                            <li class=" xian">
+                                <span class="icon">
+                                    <img src="/images/password.png" />
+                                </span>
+                                <input id="txt_passWord" type="password" class="kuang" placeholder="请输入密码" datatype="*" nullmsg="请输入密码" />
+                            </li>
+                            <li class="yzm xian">
+                                <span class="icon">
+                                    <img src="/images/yzm.png" />
+                                </span>
+                                <input type="hidden" id="hidCode" name="hidCode" />
+                                <input id="inpCode" name="inpCode" type="text" class="kuang1" style="ime-mode: disabled" placeholder="请输入验证码" datatype="iCode" nullmsg="请输入验证码！" errormsg="验证码输入错误！" />
+                                <span class="yzmtu" id="checkCode" onclick="createCode() "></span>
+                            </li>
+                            <li class="clearfix">
+                                <div class="fl">
+                                    <input type="checkbox" id="rem_paddword" />
+                                    <label for="rem_paddword">记住密码</label>
+                                </div>
+                                <a href="javascript:void(0);" class="fr" id="forgetPwd">忘记密码？</a>
+                            </li>
+                            <li>
+                                <input type="button" id="BtnLogin" name="BtnLogin" class="btn_btn" value="登录" />
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer" style="position:absolute;bottom:0;"></footer>
+    <script type="text/javascript">
+
+
+        $(function () {
+           
+            createCode();
+            //加载验证码
+
+            //回车提交事件
+            $("body").keydown(function () {
+                if (event.keyCode == "13") {//keyCode=13是回车键
+                    $("#BtnLogin").click();
+                }
+            });
+
+            var valiNewForm = $("#loginform").Validform({
+                datatype: {
+                    "iCode": function (gets, obj, curform, regxp) {
+                        /*参数gets是获取到的表单元素值，
+                          obj为当前表单元素，
+                          curform为当前验证的表单，
+                          regxp为内置的一些正则表达式的引用。*/
+                        var reg1 = regxp["*"];
+
+                        var hidcode = curform.find("#hidCode");
+                        if (reg1.test(gets)) { if (hidcode.val().toUpperCase() == gets.toUpperCase()) { return true; } }
+                        return false;
+                    }
+                },
+                ajaxPost: true,
+                btnSubmit: "#BtnLogin",
+                tiptype: 3,
+                showAllError: false,
+                beforeSubmit: function (curform) {
+                    //在验证成功后，表单提交前执行的函数，curform参数是当前表单对象。
+                    //这里明确return false的话表单将不会提交;
+                    Login();
+                }
+            })
+        });
+        var code; //在全局 定义验证码
+        function createCode() {
+            code = "";
+            var codeLength = 4;//验证码的长度
+            var checkCode = document.getElementById("checkCode");
+            checkCode.innerHTML = "";
+            var selectChar = new Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+
+            for (var i = 0; i < codeLength; i++) {
+                var charIndex = Math.floor(Math.random() * 60);
+                code += selectChar[charIndex];
+            }
+            if (code.length != codeLength) {
+                createCode();
+            }
+            checkCode.innerHTML = code;
+            $("#hidCode").val(code);
+            //$("#inpCode").val(code);
+        }
+
+        function Login() {
+            var loginName = $("#txt_loginName").val()
+            var passWord = $("#txt_passWord").val()
+            var postData = { "Func": "Login", "loginName": loginName, "passWord": passWord };
+            var HanderServiceUrl = 'http://192.168.100.240:8081/UserManage/UserInfo.ashx';
+            $.ajax({
+                type: "Post",
+                url: HanderServiceUrl,
+                data: postData,
+                dataType: "json",
+                async: false,
+                success: function (returnVal) {
+
+                    if (returnVal.result.errMsg == "success") {
+
+                        var data = returnVal.result.retData;
+
+                        //把用户信息存在cookie中
+                        localStorage.setItem('Userinfo_LG', JSON.stringify(data));                     
+                    }
+                    else {
+                        alert("用户名密码错误");
+                        createCode();
+                    }
+                },
+                error: function (errMsg) {
+                    alert("登录发生错误");
+                    createCode();
+                }
+            });
+        }      
+    </script>
+</body>
+</html>
