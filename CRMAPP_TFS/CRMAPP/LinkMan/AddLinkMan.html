@@ -343,7 +343,7 @@
                 dd_toast('电话格式错误！', 'error', 0);
                 return false;
             }*/
-            var reg = /^([0-9]{3,4}-)?[0-9]{7,8}$/;
+            var reg = /^((0\d{2,3}-\d{7,8})|(1[35784]\d{9}))$/;
             if (reg.test(tel) == false && tel != "") {
                 dd_toast('座机号码格式错误！', 'error', 0);
                 return false;
